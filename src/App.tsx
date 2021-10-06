@@ -1,26 +1,44 @@
 import React from 'react';
-import logo from './logo.svg';
+import { connect, ConnectedProps } from 'react-redux';
 import './App.css';
+import { GlobalState } from './store';
+import { decrementValue, incrementValue } from './store/IncrDecrValue/actions';
+import { IValueInitialState } from './store/IncrDecrValue/reducers';
 
-function App() {
+interface IAppProps {
+  incrementValue: (value: number) => void;
+  decrementValue: (value: number) => void;
+  dispatch: IValueInitialState;
+}
+
+const AppInner: React.FC<IAppProps & ConnectedProps<typeof connector>> = ({
+  dispatch,
+  incrementValue: incrementValueAction,
+  decrementValue: decrementValueAction
+}) => {
+  const handleInc = () => incrementValueAction(1);
+  const handleDec = () => decrementValueAction(1);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>Your value is: {dispatch.value}</div>
+      <button onClick={handleInc}>Increment +</button>
+      &nbsp; &nbsp;
+      <button onClick={handleDec}>Decrement -</button>
     </div>
   );
 }
 
-export default App;
+// Transform our state data into props
+const mapStateToProps = (state: GlobalState) => ({
+  dispatch: state.dispatch
+});
+
+// Transform our actions into props
+const mapDispatchToProps = {
+  incrementValue,
+  decrementValue
+}
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+export const App = connector(AppInner);
